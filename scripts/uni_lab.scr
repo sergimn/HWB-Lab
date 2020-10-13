@@ -1,0 +1,10 @@
+//Test script for Applet 'Uni_Lab'
+
+powerup;
+// Select Uni_Lab //aid/5328279CE3/F7
+0x00 0xA4 0x04 0x00 0X06 0X53 0X28 0X27 0X9C 0XE3 0XF8 0x7F;
+
+//Send the APDU here
+//0x80 0xCA 0x00 0x00 <length> <data> 0x7F;
+
+powerdown;
