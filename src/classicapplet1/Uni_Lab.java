@@ -15,6 +15,7 @@ import javacard.framework.*;
 public class Uni_Lab extends Applet {
     byte [] array;
     short data_siz;
+    byte [] my_name;
 
     /**
      * Installs this applet.
@@ -56,6 +57,9 @@ public class Uni_Lab extends Applet {
                 case 0x01:
                     get_and_store_data(apdu);
                     break;
+                case 0x02:
+                    dump_stored_data(apdu);
+                    break;
                 default:
                     ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
             }
@@ -69,5 +73,13 @@ public class Uni_Lab extends Applet {
         if (len >= array.length) ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
         Util.arrayCopy(apdu.getBuffer(), ISO7816.OFFSET_CDATA, array, (short)0, len);
 	data_siz = len;
+    }
+
+    private void dump_stored_data(APDU apdu){
+        short len = 0;
+        len = apdu.setOutgoing();
+        if (len != data_siz) ISOException.throwIt((short) (ISO7816.SW_CORRECT_LENGTH_00 + data_siz));
+        apdu.setOutgoingLength(len);
+        apdu.sendBytesLong(array, (short)0, len);
     }
 }
