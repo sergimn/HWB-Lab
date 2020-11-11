@@ -7,6 +7,7 @@
 package classicapplet1;
 
 import javacard.framework.*;
+import javacard.security.MessageDigest;
 
 /**
  *
@@ -16,6 +17,7 @@ public class Uni_Lab extends Applet {
     byte [] array;
     short data_siz;
     byte [] my_name;
+    MessageDigest sha1;
 
     /**
      * Installs this applet.
@@ -38,6 +40,7 @@ public class Uni_Lab extends Applet {
         array = new byte[128];
 	data_siz = 0;
         my_name = new byte[] {'S', 'e', 'r', 'g', 'i', 0x00};
+	sha1 = MessageDigest.getInstance(MessageDigest.ALG_SHA, false);
         register();
     }
 
@@ -63,6 +66,9 @@ public class Uni_Lab extends Applet {
                     break;
                 case 0x00:
                     dump_name(apdu);
+                    break;
+                case 0x30:
+                    hash_and_dump(apdu);
                     break;
                 default:
                     ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
@@ -93,5 +99,17 @@ public class Uni_Lab extends Applet {
         if (len != my_name.length-1) ISOException.throwIt((short) (ISO7816.SW_CORRECT_LENGTH_00 + my_name.length-1));
         apdu.setOutgoingLength((short)(len));
         apdu.sendBytesLong(my_name, (short)0, (short)(len));
+    }
+
+    private void hash_and_dump(APDU apdu){
+        short len = 0;
+        len = apdu.setIncomingAndReceive();
+        if (len > 128) ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+
+        short answ = sha1.doFinal(apdu.getBuffer(), ISO7816.OFFSET_CDATA, len, apdu.getBuffer(), (short)0);
+
+        if (apdu.setOutgoing() != 20) ISOException.throwIt((short) (ISO7816.SW_CORRECT_LENGTH_00 + 20)); //SHA1 has a lenght of 20bytes
+        apdu.setOutgoingLength((short)20);
+        apdu.sendBytes((short)0, (short)20);
     }
 }
