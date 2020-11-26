@@ -37,6 +37,7 @@ public class Uni_Lab extends Applet {
     protected Uni_Lab() {
         array = new byte[128];
 	data_siz = 0;
+        my_name = new byte[] {'S', 'e', 'r', 'g', 'i', 0x00};
         register();
     }
 
@@ -60,6 +61,9 @@ public class Uni_Lab extends Applet {
                 case 0x02:
                     dump_stored_data(apdu);
                     break;
+                case 0x00:
+                    dump_name(apdu);
+                    break;
                 default:
                     ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
             }
@@ -81,5 +85,13 @@ public class Uni_Lab extends Applet {
         if (len != data_siz) ISOException.throwIt((short) (ISO7816.SW_CORRECT_LENGTH_00 + data_siz));
         apdu.setOutgoingLength(len);
         apdu.sendBytesLong(array, (short)0, len);
+    }
+
+    private void dump_name(APDU apdu){
+        short len = 0;
+        len = apdu.setOutgoing();
+        if (len != my_name.length-1) ISOException.throwIt((short) (ISO7816.SW_CORRECT_LENGTH_00 + my_name.length-1));
+        apdu.setOutgoingLength((short)(len));
+        apdu.sendBytesLong(my_name, (short)0, (short)(len));
     }
 }
