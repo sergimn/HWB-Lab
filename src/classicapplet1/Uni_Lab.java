@@ -70,6 +70,9 @@ public class Uni_Lab extends Applet {
                 case 0x30:
                     hash_and_dump(apdu);
                     break;
+                case 0x32:
+                    hash_stored_and_dump(apdu);
+                    break;
                 default:
                     ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
             }
@@ -109,6 +112,15 @@ public class Uni_Lab extends Applet {
         short answ = sha1.doFinal(apdu.getBuffer(), ISO7816.OFFSET_CDATA, len, apdu.getBuffer(), (short)0);
 
         if (apdu.setOutgoing() != 20) ISOException.throwIt((short) (ISO7816.SW_CORRECT_LENGTH_00 + 20)); //SHA1 has a lenght of 20bytes
+        apdu.setOutgoingLength((short)20);
+        apdu.sendBytes((short)0, (short)20);
+    }
+
+    private void hash_stored_and_dump(APDU apdu){
+        short answ = sha1.doFinal(array, (short)0, data_siz, apdu.getBuffer(), (short)0);
+
+        if (apdu.setOutgoing() != 20) ISOException.throwIt((short) (ISO7816.SW_CORRECT_LENGTH_00 + 20)); //SHA1 has a lenght of 20bytes
+
         apdu.setOutgoingLength((short)20);
         apdu.sendBytes((short)0, (short)20);
     }
